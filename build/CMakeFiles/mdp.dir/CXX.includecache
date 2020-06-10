@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/91498/Documents/code/rl_intro_book/policy_iteration.cpp
+policy_iteration.h
+C:/Users/91498/Documents/code/rl_intro_book/policy_iteration.h
+iostream
+-
+cmath
+-
+
+C:/Users/91498/Documents/code/rl_intro_book/policy_iteration.h
+vector
+-
+
