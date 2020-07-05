@@ -23,16 +23,19 @@ class myAgent(agent.Agent):
         else:
             next_state = state
 
-        if state == 0 :
-            r = 0.0
-        else:
-            r = -1.0
+        r = self.reward(state, action)
         
         return r + self.tao * self.v[next_state]
 
     def policy(self, state, action):
         return 1/self.action_size
     
+    def reward(self, state, action):
+        if state == 0:
+            return 0.0
+        else:
+            return -1.0
+
     def get_actions(self, state):
         return [i for i in range(self.action_size)]
 

@@ -1,13 +1,16 @@
 import numpy as np
 
 class Agent:
-    def __init__(self, state_size, action_size, tao=0.9):
-        self.tao = tao
-        self.state_size = state_size
-        self.action_size = action_size
-        self.v = np.zeros((self.state_size),dtype=float)
-        self.q = np.zeros((self.state_size, self.action_size),dtype=float)
-        self.p = np.zeros((self.state_size),dtype=int)
+    def __init__(self, state_size=None, action_size=None, discount=0.9):
+        self.discount = discount
+        if state_size is not None:
+            self.state_size = state_size
+            self.v = np.zeros((self.state_size),dtype=float)
+        if action_size is not None:
+            self.action_size = action_size
+            if state_size is not None:
+                self.p = np.zeros((self.state_size),dtype=int)
+                self.q = np.zeros((self.state_size, self.action_size),dtype=float)
 
     def state_value(self, state):
         raise NotImplementedError("state_value(): not implemented!")
@@ -26,7 +29,10 @@ class Agent:
 
     def policy_off_select(self, state):
         raise NotImplementedError("policy_off_select(): not implemented!")
-        
+    
+    def reward(self, state, action):
+        raise NotImplementedError("reward(): not implemented!")
+
     def get_actions(self, state):
         raise NotImplementedError("get_actions(): not implemented!")
     
