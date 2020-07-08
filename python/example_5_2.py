@@ -1,4 +1,5 @@
 import MC
+import algo
 import numpy as np
 import matplotlib
 from matplotlib import pyplot as plt
@@ -25,14 +26,19 @@ for k in range(len(state2axis)):
 
 
 class Agent:
-    def __init__(self, state_size, action_size, tao=0.9):
-        self.tao = tao
+    def __init__(self, state_size=None, action_size=None, discount=0.9):
+        self.discount = discount
         self.state_size = state_size
         self.action_size = action_size
         self.v = [0.0 for i in range(state_size)]
         self.q = np.zeros((self.state_size, self.action_size))
         self.p = [0 for i in range(state_size)]
         self.off_policy = False
+        
+        self.R_mean = 0.0
+        self.step_size = 0.001
+
+        self.return_cnt = np.zeros((self.state_size, self.action_size))
 
     def state_value(self, state):
         return self.v[state.state_idx]
@@ -53,9 +59,11 @@ class Agent:
         #     return e/self.action_size
     
     def policy_select(self, state):
-        e = 0.1
+        # e = 0.1
+        e = 1.0
         if np.random.rand() < e:
-            return np.random.randint(0,2)
+            actions = self.get_actions(state)
+            return actions[np.random.randint(0,len(actions))]
         else:
             return self.p[state]
 
@@ -79,36 +87,46 @@ class Agent:
     
     def new_episode(self):
         s = np.random.randint(0,self.state_size)
-        # a = self.policy_select(s)
-        a = np.random.randint(0, self.action_size)
-        
-        traj = []
-        while True:
-            if s in edges:
-                r = 0
-                traj.append([s,a,r])
-                break
+        return s
+    
+    def stop_state(self, s):
+        return s in edges
 
-            x,y = state2axis[s]
-            if a == 0:
-                x += 1
-            elif a == 1:
-                x -= 1
-            elif a == 2:
-                y += 1
-            else:
-                y -= 1
-            s_ = axis2state[(x,y)]
-            if s_ in edges:
-                r = edge_values[s_]
-            else:
-                r = 0
-            traj.append([s,a,r])
-            s = s_
-            a = np.random.randint(0, self.action_size)
-            # a = self.policy_select(s)
-                
-        return traj
+    def act(self, s, a):
+        if self.stop_state(s):
+            return s, 0.0
+
+        x,y = state2axis[s]
+        if a == 0:
+            x += 1
+        elif a == 1:
+            x -= 1
+        elif a == 2:
+            y += 1
+        else:
+            y -= 1
+        s_ = axis2state[(x,y)]
+        if s_ in edges:
+            r = edge_values[s_]
+        else:
+            r = 0.0
+        
+        return s_, r
+
+    def update(self, t, s, a, target):
+        diff =  target - self.action_value(s,a)
+        self.return_cnt[s][a] += 1
+        self.q[s][a] += 1/self.return_cnt[s][a] * diff
+
+        actions = self.get_actions(s)
+        values = [self.action_value(s,a) for a in actions]
+        self.p[s] = actions[np.argmax(values)]
+
+    def print_t(self,t,St,At,Rtn,Stn,Atn):
+        pass
+
+    def print_e(self,e,S,A,R):
+        print(e)
 
     def print_evaluation(self):
         print("value matrix")
@@ -152,7 +170,9 @@ if __name__ == "__main__":
     #     plt.show()
     #     print(traj)
 
-    method = MC.algo(agent, 0.0001)
-    method.MC_control(10000)#, show=True)
+    # method = MC.algo(agent)
+    # method.MC_control(1000)#, show=True)
+    method = algo.Method(agent)
+    method.learn(1000)#, show=True)
     agent.print_evaluation()
-    agent.print_improvement()
+    # agent.print_improvement()

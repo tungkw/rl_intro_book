@@ -1,8 +1,16 @@
 import numpy as np
 
 class Agent:
-    def __init__(self, state_size=None, action_size=None, discount=0.9):
+    def __init__(self, state_size=None, action_size=None, lambd_value=0.0, lambd_policy=0.0, discount=0.9):
         self.discount = discount
+        
+        # difference
+        self.R_mean = 0.0
+
+        # trace
+        self.lambd_value = lambd_value
+        self.lambd_policy = lambd_policy
+
         if state_size is not None:
             self.state_size = state_size
             self.v = np.zeros((self.state_size),dtype=float)

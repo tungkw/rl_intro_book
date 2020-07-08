@@ -1,5 +1,6 @@
 import agent
 import gradient_TD
+import algo
 import tiles3
 import numpy as np
 from matplotlib import pyplot as plt
@@ -64,21 +65,20 @@ class myAgent(agent.Agent):
         x = self.feature(state, action)
         return np.matmul(self.w.T, x)
 
-    def update(self, state, action, target):
-        if not self.stop_state(state):
-            delta_value = self.feature(state, action)
-            diff = target - self.action_value(state, action)
-            self.R_mean += self.beta * diff
+    def update(self, t, state, action, target):
+        delta_value = self.feature(state, action)
+        diff = target - self.action_value(state, action)
+        self.R_mean += self.beta * diff
 
-            # z_ex = np.zeros_like(self.z)
-            # w_ex = np.zeros_like(self.w)
-            # dutch trace
-            z_ex = - self.step_size*self.discount*self.lambd*np.matmul(self.z.T, delta_value) * delta_value
-            w_ex = self.step_size * (self.action_value(state, action)-np.matmul(self.w_last.T, delta_value)) * (self.z - delta_value)
-            self.w_last = self.w
+        # z_ex = np.zeros_like(self.z)
+        # w_ex = np.zeros_like(self.w)
+        # dutch trace
+        z_ex = - self.step_size*self.discount*self.lambd*np.matmul(self.z.T, delta_value) * delta_value
+        w_ex = self.step_size * (self.action_value(state, action)-np.matmul(self.w_last.T, delta_value)) * (self.z - delta_value)
+        self.w_last = self.w
 
-            self.z = self.discount * self.lambd * self.z + delta_value + z_ex
-            self.w += self.step_size * diff * self.z + w_ex
+        self.z = self.discount * self.lambd * self.z + delta_value + z_ex
+        self.w += self.step_size * diff * self.z + w_ex
 
 
 
@@ -101,7 +101,10 @@ class myAgent(agent.Agent):
         else:
             return False
 
-    def print(self):
+    def print_t(self, t, St, At, Rtn, Stn, Atn):
+        pass
+    
+    def print_e(self, e, S, A, R):
         x = np.linspace(-1.2, 0.5, 50)
         y = np.linspace(-0.07, 0.07, 50)
         X,Y = np.meshgrid(x,y)
@@ -118,6 +121,8 @@ class myAgent(agent.Agent):
 
 if __name__ == "__main__":
     test = myAgent()
-    method = gradient_TD.algo(test)
-    method.TD_control(9000,step=1)
+    # method = gradient_TD.algo(test)
+    # method.TD_control(9000,step=1)
+    method = algo.Method(test)
+    method.learn(9000,step=1)
     plt.waitforbuttonpress()
